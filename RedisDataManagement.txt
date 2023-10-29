@@ -1,0 +1,148 @@
+// Redi Key Value
+
+127.0.0.1:6379> set name "Ankur"
+OK
+127.0.0.1:6379> set fname "Ankur"
+OK
+127.0.0.1:6379> set lname " Bhargava"
+OK
+127.0.0.1:6379> get name
+"Ankur"
+127.0.0.1:6379> get fname
+"Ankur"
+127.0.0.1:6379> get lastname
+(nil)
+127.0.0.1:6379> get lname
+" Bhargava"
+127.0.0.1:6379> del name
+(integer) 1 // no of key deleted
+127.0.0.1:6379> get name
+(nil)
+127.0.0.1:6379> set key1 value1
+OK
+127.0.0.1:6379> set key2 value2
+OK
+127.0.0.1:6379> set key3 value3
+OK
+127.0.0.1:6379> del key1 key2 key3
+(integer) 3  // three key deleted
+127.0.0.1:6379> get key1
+(nil)
+127.0.0.1:6379> exists fname
+(integer) 1
+127.0.0.1:6379> exists lname
+(integer) 1
+127.0.0.1:6379> exists fname lname
+(integer) 2 // 2 key exist
+127.0.0.1:6379> exist name
+(error) ERR unknown command `exist`, with args beginning with: `name`,
+127.0.0.1:6379> exists name
+(integer) 0 //0 key exist
+
+
+// keys with expirations
+ex => expiration in sec
+px => expiration in msec
+127.0.0.1:6379> set 1 hello ex 120
+OK
+127.0.0.1:6379> ttl 1
+(integer) 115
+
+127.0.0.1:6379> expire 1 10
+(integer) 1
+127.0.0.1:6379> ttl 1
+(integer) 4
+127.0.0.1:6379> ttl 1
+(integer) 2
+127.0.0.1:6379> ttl 1
+(integer) 0
+127.0.0.1:6379> ttl 1
+(integer) -2
+127.0.0.1:6379> set 1 hello px 1000
+OK
+127.0.0.1:6379> ttl 1
+(integer) -2
+127.0.0.1:6379> pttl 1
+(integer) -2
+127.0.0.1:6379> set 1 hello px 100000
+OK
+127.0.0.1:6379> expire 1 10
+(integer) 1
+127.0.0.1:6379> set 1 hello px 1000000
+OK
+127.0.0.1:6379> pttl 1
+(integer) 994671
+127.0.0.1:6379> pexpire 1 100
+(integer) 1
+127.0.0.1:6379> pttl 1
+(integer) -2
+
+-2 = expired
+
+// persist 
+// 1 is the timeout was removed
+0 if the key does not exist or associate with time out
+
+
+127.0.0.1:6379> set 1 hello ex 120
+OK
+127.0.0.1:6379> ttl 1
+(integer) 112
+127.0.0.1:6379> persist 1
+(integer) 1
+127.0.0.1:6379> ttl 1
+(integer) -1
+127.0.0.1:6379> set 2 hello
+OK
+127.0.0.1:6379> persist 2
+(integer) 0
+
+127.0.0.1:6379> set 3 hello ex 10
+OK
+127.0.0.1:6379> ttl 3
+(integer) 6
+127.0.0.1:6379> persist 3
+(integer) 0
+127.0.0.1:6379>
+
+
+
+Keys are expired in tow ways
+- Passive - A key is passively expired simply when some client tries to access  it and the key is found to be time out
+- Active ways- Redis does 10 times per second:
+	Test 20 random keys from the set of keys with associated expire, Delete all the keys , if more than 25% of keys were expired , start again from step 1
+	
+	
+	
+Key space - is like database namespace , schema 
+Key space start from 0 , 
+>> Select index (0, 1,2,3....)
+
+ you cannot connect keys to multiple keyspace
+ 
+ 127.0.0.1:6379> keys *
+1) "mykey"
+2) "fname"
+3) "2"
+4) "1"
+5) "lname"
+127.0.0.1:6379> select 0
+OK
+127.0.0.1:6379> select 1
+OK
+127.0.0.1:6379[1]> set fname "test"
+OK
+127.0.0.1:6379[1]> get fname
+"test"
+127.0.0.1:6379[1]> set lname test123
+OK
+127.0.0.1:6379[1]> get lname
+"test123"
+127.0.0.1:6379[1]> keys *
+1) "lname"
+2) "fname"
+127.0.0.1:6379[1]> flushdb
+OK
+127.0.0.1:6379[1]> keys *
+(empty array)
+127.0.0.1:6379[1]>
