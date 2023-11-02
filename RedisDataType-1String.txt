@@ -1,0 +1,552 @@
+// Redis Datatype
+1- String
+2- List
+3- Hashes
+4- Sets
+5- Sorted sets
+
+
+// String - its is binary safe
+we can serialise any type of data into string.
+Max size is 512 MB
+
+Use case
+
+1 Static webpages
+2 cached
+caching
+
+127.0.0.1:6379> set otp:user:100 123456789 ex 120
+OK
+127.0.0.1:6379> get otp:user:100 123456789
+(error) ERR wrong number of arguments for 'get' command
+127.0.0.1:6379> get otp:user:100
+"123456789"
+127.0.0.1:6379> ttl otp:user:100
+(integer) 91
+127.0.0.1:6379> ttl otp:user:100
+(integer) 89
+127.0.0.1:6379> ttl otp:user:100
+(integer) 88
+127.0.0.1:6379> ttl otp:user:100
+(integer) 87
+127.0.0.1:6379> ttl otp:user:100
+(integer) 86
+127.0.0.1:6379> ttl otp:user:100
+(integer) -2
+127.0.0.1:6379> get otp:user:100
+(nil)
+127.0.0.1:6379>
+
+
+3 configuration
+
+127.0.0.1:6379> keys *
+1) "user:name:mname"
+2) "user:name:fname"
+3) "k1"
+4) "h2"
+5) "app:config:title"
+6) "app:config:author"
+7) "user:name:lname"
+8) "name"
+127.0.0.1:6379> keys user*
+1) "user:name:mname"
+2) "user:name:fname"
+3) "user:name:lname"
+127.0.0.1:6379> keys app*
+1) "app:config:title"
+2) "app:config:author"
+127.0.0.1:6379> type user:name:mname
+string
+// increment or decrement
+// incr, incrby, decr, decrby--- integer only
+
+127.0.0.1:6379> set student:100:score:math 10
+OK
+127.0.0.1:6379> get student:100:score:math
+"10"
+127.0.0.1:6379> incr student:100:score:math
+(integer) 11
+127.0.0.1:6379> incr student:100:score:math
+(integer) 12
+127.0.0.1:6379> incr student:100:score:math
+(integer) 13
+127.0.0.1:6379> decr student:100:score:math
+(integer) 12
+127.0.0.1:6379> decr student:100:score:math
+(integer) 11
+127.0.0.1:6379> decr student:100:score:math
+(integer) 10
+127.0.0.1:6379> set customer:balance 100
+OK
+127.0.0.1:6379> get customer:balance
+"100"
+127.0.0.1:6379> incrby customer:balance 10
+(integer) 110
+127.0.0.1:6379> incrby customer:balance 10
+(integer) 120
+127.0.0.1:6379> incrby customer:balance 100
+(integer) 220
+127.0.0.1:6379> incrby customer:balance 1000
+(integer) 1220
+127.0.0.1:6379> decrby customer:balance 1000
+(integer) 220
+127.0.0.1:6379> decrby customer:balance 100
+(integer) 120
+127.0.0.1:6379> decrby customer:balance 10
+(integer) 110
+127.0.0.1:6379> decrby customer:balance 10
+(integer) 100
+
+
+// increment and decrement floating value
+
+127.0.0.1:6379> set num 1
+OK
+127.0.0.1:6379> set num 1.5
+OK
+127.0.0.1:6379> get num
+"1.5"
+127.0.0.1:6379> type num
+string
+127.0.0.1:6379> incrby num 1
+(error) ERR value is not an integer or out of range
+127.0.0.1:6379> incrbyfloat num 1
+"2.5"
+127.0.0.1:6379> incrbyfloat num 1.2
+"3.7"
+127.0.0.1:6379> decrby num 1
+(error) ERR value is not an integer or out of range
+127.0.0.1:6379> decrbyfloat num 1
+(error) ERR unknown command `decrbyfloat`, with args beginning with: `num`, `1`,
+127.0.0.1:6379> incrbyfloat num 1.2
+"4.9"
+127.0.0.1:6379> incrbyfloat num -1.2
+"3.7"
+127.0.0.1:6379> incrbyfloat num -0.2
+"3.5"
+127.0.0.1:6379> set app:fee:cc 1
+OK
+127.0.0.1:6379> set app:fee:dc 1
+OK
+127.0.0.1:6379> get app:fee:dc
+"1"
+127.0.0.1:6379> get app:fee:cc
+"1"
+127.0.0.1:6379> incrbyfloat app:fee:cc 1.2
+"2.2"
+127.0.0.1:6379> incrbyfloat app:fee:cc 1.4
+"3.6"
+127.0.0.1:6379> incrbyfloat app:fee:dc 1.1
+"2.1"
+127.0.0.1:6379> incrbyfloat app:fee:cc -1.1
+"2.5"
+127.0.0.1:6379> get app:fee:cc
+"2.5"
+127.0.0.1:6379> get app:fee:dc
+"2.1"
+
+
+
+// Append -> append value to string 
+// Append ststement return length of new string 
+
+127.0.0.1:6379> set title "How"
+OK
+127.0.0.1:6379> get title
+"How"
+127.0.0.1:6379> append title " are"
+(integer) 7
+127.0.0.1:6379> get title
+"How are"
+127.0.0.1:6379> append title " you"
+(integer) 11
+127.0.0.1:6379> get title
+"How are you"
+127.0.0.1:6379> append title " ?"
+(integer) 13
+127.0.0.1:6379> get title
+"How are you ?"
+127.0.0.1:6379> strlen title
+(integer) 13
+// example log append
+
+127.0.0.1:6379> set website:daily:log "test"
+OK
+127.0.0.1:6379> get website:daily:log
+"test"
+127.0.0.1:6379> append website:daily:log ",new log value1"
+(integer) 19
+127.0.0.1:6379> append website:daily:log ",new log value2"
+(integer) 34
+127.0.0.1:6379> append website:daily:log ",new log value3"
+(integer) 49
+127.0.0.1:6379> get website:daily:log
+"test,new log value1,new log value2,new log value3"
+127.0.0.1:6379> strlen website:daily:log
+(integer) 49
+
+
+
+//Get set  multiple keys
+
+127.0.0.1:6379> mset key1 value key2 value2 key3 value3
+OK
+127.0.0.1:6379> mget key1 key2 key3
+1) "value"
+2) "value2"
+3) "value3"
+127.0.0.1:6379> mset key1 value1 key2 value12 key3 value13
+OK
+127.0.0.1:6379> mget key1 key2 key3
+1) "value1"
+2) "value12"
+3) "value13"
+127.0.0.1:6379> msetnx key1 value11 key2 value14 key3 value15
+(integer) 0
+127.0.0.1:6379> mget key1 key2 key3
+1) "value1"
+2) "value12"
+3) "value13"
+127.0.0.1:6379> msetnx key4 value11 key5 value14 key6 value15
+(integer) 1
+127.0.0.1:6379> mget key1 key2 key3 key4 key5 key6
+1) "value1"
+2) "value12"
+3) "value13"
+4) "value11"
+5) "value14"
+6) "value15"
+127.0.0.1:6379>
+
+nx stand for not exist and will only if key does not exist . thus mset will override the value and msetnx will not
+
+
+// GETSET for an atomic reset
+
+127.0.0.1:6379> set key1 val1
+OK
+127.0.0.1:6379> get key1
+"val1"
+127.0.0.1:6379> getset key1 val1new
+"val1"
+127.0.0.1:6379> keys key*
+1) "key1"
+2) "key6"
+3) "key3"
+4) "key5"
+5) "key2"
+6) "key4"
+127.0.0.1:6379> getset test value
+(nil)
+127.0.0.1:6379> getset test value2
+"value"
+127.0.0.1:6379> set app:current:token 1
+OK
+127.0.0.1:6379> incr app.current:token
+(integer) 1
+127.0.0.1:6379> incr app.current:token
+(integer) 2
+127.0.0.1:6379> get app.current:token
+"2"
+127.0.0.1:6379> incr app.current:token
+(integer) 3
+127.0.0.1:6379> incr app.current:token
+(integer) 4
+127.0.0.1:6379> incr app.current:token
+(integer) 5
+127.0.0.1:6379> incr app.current:token
+(integer) 6
+127.0.0.1:6379> incr app:current:token
+(integer) 2
+127.0.0.1:6379> incr app:current:token
+(integer) 3
+127.0.0.1:6379> incr app:current:token
+(integer) 4
+127.0.0.1:6379> incr app:current:token
+(integer) 5
+127.0.0.1:6379> get app:current:token
+"5"
+127.0.0.1:6379> incr app:current:token
+(integer) 6
+127.0.0.1:6379> incr app:current:token
+(integer) 7
+127.0.0.1:6379> incr app:current:token
+(integer) 8
+127.0.0.1:6379> incr app:current:token
+(integer) 9
+127.0.0.1:6379> getset app:current:token 1
+"9"
+127.0.0.1:6379> getset app.current:token 1
+"6"
+
+if getset on non existing key return nil else return current key value
+
+
+Get range set range
+same as substring
+
+// get range
+
+127.0.0.1:6379> set website "google.co.in"
+OK
+127.0.0.1:6379> get website
+"google.co.in"
+127.0.0.1:6379> getrange wensite 0 0
+""
+127.0.0.1:6379> getrange website 0 0
+"g"
+127.0.0.1:6379> getrange website 0 1
+"go"
+127.0.0.1:6379> getrange website 0 5
+"google"
+127.0.0.1:6379> getrange website 7 8
+"co"
+127.0.0.1:6379> getrange website 7 11
+"co.in"
+127.0.0.1:6379> getrange website 7 8
+"co"
+127.0.0.1:6379> getrange website 10 11
+"in"
+
+
+// set range
+127.0.0.1:6379> set message "hello World"
+OK
+127.0.0.1:6379> get message
+"hello World"
+127.0.0.1:6379> setrange message 6 myworld
+(integer) 13
+127.0.0.1:6379> get message
+"hello myworld"
+
+127.0.0.1:6379> setrange message2 6 "hi there!!!"
+(integer) 17
+127.0.0.1:6379> get message2
+"\x00\x00\x00\x00\x00\x00hi there!!!"
+
+
+for setrange if key doesnt not exist it will do padding till offset
+
+
+127.0.0.1:6379> set num 1
+OK
+127.0.0.1:6379> get num
+"1"
+127.0.0.1:6379> expire num 10
+(integer) 1
+127.0.0.1:6379> ttl num
+(integer) 8
+127.0.0.1:6379> ttl num
+(integer) 6
+127.0.0.1:6379> ttl num
+(integer) 5
+127.0.0.1:6379> ttl num
+(integer) 4
+127.0.0.1:6379> ttl num
+(integer) 3
+127.0.0.1:6379> ttl num
+(integer) -2
+127.0.0.1:6379> setex config "test"
+(error) ERR wrong number of arguments for 'setex' command
+127.0.0.1:6379> setex num 100 test
+OK
+127.0.0.1:6379> ttl num
+(integer) 96
+127.0.0.1:6379> ttl num
+(integer) 91
+127.0.0.1:6379> ttl num
+(integer) 90
+127.0.0.1:6379> psetnx num1 10000 1
+(error) ERR unknown command `psetnx`, with args beginning with: `num1`, `10000`, `1`,
+127.0.0.1:6379> ttl num1
+(integer) -2
+127.0.0.1:6379> ttl num1
+(integer) -2
+127.0.0.1:6379> psetex num1 10000 1
+OK
+127.0.0.1:6379> ttl num1
+(integer) 7
+127.0.0.1:6379> ttl num1
+(integer) 2
+127.0.0.1:6379> ttl num1
+(integer) -2
+// set only if not exist
+127.0.0.1:6379>  set kex value
+OK
+127.0.0.1:6379> get kex
+"value"
+127.0.0.1:6379> setnx kex value1
+(integer) 0
+127.0.0.1:6379> get kex
+"value"
+127.0.0.1:6379> setnx kex2 value
+(integer) 1
+127.0.0.1:6379> get kex2
+"value"
+
+
+
+// encoding
+int
+embstr
+raw
+
+
+127.0.0.1:6379> set intkey 1234555
+OK
+127.0.0.1:6379> get intkey
+"1234555"
+127.0.0.1:6379> object encoding intkey
+"int"
+127.0.0.1:6379> set stringkey "test"
+OK
+127.0.0.1:6379> object encoding stringkey
+"embstr"
+127.0.0.1:6379> set rawkey "this is a raw data test. encoding will be raw. test uit"
+OK
+127.0.0.1:6379> object encoding rawkey
+"raw"
+127.0.0.1:6379>
+
+
+// json string
+127.0.0.1:6379> set myjson '{"fname": "testfname", "lname": "testlname"}'
+OK
+127.0.0.1:6379> get myjson
+"{\"fname\": \"testfname\", \"lname\": \"testlname\"}"
+127.0.0.1:6379> object encoding myjson
+"embstr"
+127.0.0.1:6379>
+
+
+// scan
+
+
+
+127.0.0.1:6379> flushdb
+OK
+127.0.0.1:6379> keys *
+(empty array)
+127.0.0.1:6379> debug populate 50
+OK
+127.0.0.1:6379> keys *
+ 1) "key:13"
+ 2) "key:39"
+ 3) "key:1"
+ 4) "key:46"
+ 5) "key:40"
+ 6) "key:38"
+ 7) "key:25"
+ 8) "key:15"
+ 9) "key:7"
+10) "key:14"
+11) "key:21"
+12) "key:3"
+13) "key:5"
+14) "key:48"
+15) "key:34"
+16) "key:22"
+17) "key:0"
+18) "key:35"
+19) "key:9"
+20) "key:49"
+21) "key:41"
+22) "key:27"
+23) "key:43"
+24) "key:44"
+25) "key:31"
+26) "key:12"
+27) "key:47"
+28) "key:20"
+29) "key:17"
+30) "key:42"
+31) "key:37"
+32) "key:16"
+33) "key:23"
+34) "key:29"
+35) "key:6"
+36) "key:45"
+37) "key:26"
+38) "key:8"
+39) "key:2"
+40) "key:32"
+41) "key:24"
+42) "key:18"
+43) "key:28"
+44) "key:4"
+45) "key:36"
+46) "key:33"
+47) "key:11"
+48) "key:19"
+49) "key:30"
+50) "key:10"
+127.0.0.1:6379> scan 0
+1) "2"
+2)  1) "key:13"
+    2) "key:43"
+    3) "key:5"
+    4) "key:20"
+    5) "key:17"
+    6) "key:28"
+    7) "key:0"
+    8) "key:32"
+    9) "key:23"
+   10) "key:19"
+127.0.0.1:6379> scan 2
+1) "38"
+2)  1) "key:44"
+    2) "key:31"
+    3) "key:34"
+    4) "key:8"
+    5) "key:2"
+    6) "key:14"
+    7) "key:16"
+    8) "key:49"
+    9) "key:4"
+   10) "key:15"
+127.0.0.1:6379> scan 38
+1) "25"
+2)  1) "key:47"
+    2) "key:35"
+    3) "key:18"
+    4) "key:30"
+    5) "key:39"
+    6) "key:1"
+    7) "key:48"
+    8) "key:26"
+    9) "key:7"
+   10) "key:42"
+   11) "key:37"
+127.0.0.1:6379> scan 0 match *key:3*
+1) "2"
+2) 1) "key:32"
+127.0.0.1:6379> scan 2
+1) "38"
+2)  1) "key:44"
+    2) "key:31"
+    3) "key:34"
+    4) "key:8"
+    5) "key:2"
+    6) "key:14"
+    7) "key:16"
+    8) "key:49"
+    9) "key:4"
+   10) "key:15"
+127.0.0.1:6379> scan 2 match *key:3*
+1) "38"
+2) 1) "key:31"
+   2) "key:34"
+127.0.0.1:6379> scan 0 match *key:*3* count 2
+1) "16"
+2) 1) "key:13"
+   2) "key:43"
+127.0.0.1:6379> scan 16 match *key:*3* count 2
+1) "24"
+2) (empty array)
+127.0.0.1:6379> scan 0 match *key:*3* count 2 type string
+1) "16"
+2) 1) "key:13"
+   2) "key:43"
+127.0.0.1:6379>

@@ -304,6 +304,9 @@ OK
 (empty array)
 127.0.0.1:6379> set name "ankur"
 OK
+
+
+
 127.0.0.1:6379> get name
 "ankur"
 127.0.0.1:6379> type name
