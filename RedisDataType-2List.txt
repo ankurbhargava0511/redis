@@ -1,0 +1,288 @@
+// List
+
+// Lpush rpush lrange
+
+
+127.0.0.1:6379> lpush name "Ankur"
+(integer) 1
+127.0.0.1:6379> lpush name "arpit" "Amit"
+(integer) 3
+127.0.0.1:6379> get name 0 -1
+(error) ERR wrong number of arguments for 'get' command
+127.0.0.1:6379> get deptlrange name 0 -1
+(error) ERR wrong number of arguments for 'get' command
+127.0.0.1:6379> lrange name 0 -1
+1) "Amit"
+2) "arpit"
+3) "Ankur"
+127.0.0.1:6379> lpush name "testleft"
+(integer) 4
+127.0.0.1:6379> lrange name 0 -1
+1) "testleft"
+2) "Amit"
+3) "arpit"
+4) "Ankur"
+127.0.0.1:6379> rpush name "testright"
+(integer) 5
+127.0.0.1:6379> lrange name 0 -1
+1) "testleft"
+2) "Amit"
+3) "arpit"
+4) "Ankur"
+5) "testright"
+
+// get item by index lindex
+
+127.0.0.1:6379> lindex name 0
+"testleft"
+127.0.0.1:6379> lindex name -1
+"testright"
+127.0.0.1:6379> lindex name 2
+"arpit"
+
+
+// insert in between linsert before or after
+
+127.0.0.1:6379> linsert name before aprit "inserted"
+(integer) -1
+127.0.0.1:6379> linsert name before "arpit" "insertedbefore"
+(integer) 6
+127.0.0.1:6379> linsert name after "arpit" "insertedafter"
+(integer) 7
+127.0.0.1:6379> lrange name 0 -1
+1) "testleft"
+2) "Amit"
+3) "insertedbefore"
+4) "arpit"
+5) "insertedafter"
+6) "Ankur"
+7) "testright"
+127.0.0.1:6379>  lpush name  1 2 3
+
+// lpop rpop to remove items 
+127.0.0.1:6379> lpush name 1 2 3
+(integer) 10
+127.0.0.1:6379> rpush name r1 r2 r3
+(integer) 13
+127.0.0.1:6379> lrange name 0 -1
+ 1) "3"
+ 2) "2"
+ 3) "1"
+ 4) "testleft"
+ 5) "Amit"
+ 6) "insertedbefore"
+ 7) "arpit"
+ 8) "insertedafter"
+ 9) "Ankur"
+10) "testright"
+11) "r1"
+12) "r2"
+13) "r3"
+127.0.0.1:6379> lpop name
+"3"
+127.0.0.1:6379> lpop name
+"2"
+127.0.0.1:6379> lpop name
+"1"
+127.0.0.1:6379> rpop name
+"r3"
+127.0.0.1:6379> rpop name
+"r2"
+127.0.0.1:6379> rpop name
+"r1"
+127.0.0.1:6379> lrange name 0 -1
+1) "testleft"
+2) "Amit"
+3) "insertedbefore"
+4) "arpit"
+5) "insertedafter"
+6) "Ankur"
+7) "testright"
+127.0.0.1:6379>
+
+
+// ltrim
+
+127.0.0.1:6379> rpush name r1 r2 r3
+(integer) 10
+127.0.0.1:6379> lpush name l1 l2 l3
+(integer) 13
+127.0.0.1:6379> lrange name 0 -1
+ 1) "l3"
+ 2) "l2"
+ 3) "l1"
+ 4) "testleft"
+ 5) "Amit"
+ 6) "insertedbefore"
+ 7) "arpit"
+ 8) "insertedafter"
+ 9) "Ankur"
+10) "testright"
+11) "r1"
+12) "r2"
+13) "r3"
+127.0.0.1:6379> ltrim name 3 10
+OK
+127.0.0.1:6379> lrange name 0 -1
+1) "testleft"
+2) "Amit"
+3) "insertedbefore"
+4) "arpit"
+5) "insertedafter"
+6) "Ankur"
+7) "testright"
+
+
+
+update element
+
+
+127.0.0.1:6379> lset name 8 testlset
+(error) ERR index out of range
+127.0.0.1:6379> lset name 7 testlset
+OK
+127.0.0.1:6379> lrange name 0 -1
+1) "testleft"
+2) "Amit"
+3) "insertedbefore"
+4) "arpit"
+5) "insertedafter"
+6) "Ankur"
+7) "testright"
+8) "testlset"
+
+// lenght of list
+
+127.0.0.1:6379> llen name
+(integer) 8
+127.0.0.1:6379> lpush psostions a a b c d e f c d e a
+(integer) 11
+127.0.0.1:6379> lrange psostions 0 -1
+ 1) "a"
+ 2) "e"
+ 3) "d"
+ 4) "c"
+ 5) "f"
+ 6) "e"
+ 7) "d"
+ 8) "c"
+ 9) "b"
+10) "a"
+11) "a"
+127.0.0.1:6379> lpos psostions a
+(integer) 0
+127.0.0.1:6379> lpos psostions a rank 1
+(integer) 0
+127.0.0.1:6379> lpos psostions a rank 2
+(integer) 9
+127.0.0.1:6379> lpos psostions d rank 2
+(integer) 6
+127.0.0.1:6379> lpos psostions d rank 1
+(integer) 2
+127.0.0.1:6379> lpos psostions d count
+(error) ERR syntax error
+127.0.0.1:6379> lpos psostions d count 1
+1) (integer) 2
+127.0.0.1:6379> lpos psostions d count 2
+1) (integer) 2
+2) (integer) 6
+127.0.0.1:6379> lpos psostions d count 4
+1) (integer) 2
+2) (integer) 6
+127.0.0.1:6379> lpos psostions d rant 0 count 4
+(error) ERR syntax error
+127.0.0.1:6379> lpos psostions d rank 0 count 4
+(error) ERR RANK can't be zero: use 1 to start from the first match, 2 from the second, ...
+127.0.0.1:6379> lpos psostions d rank 1 count 4
+1) (integer) 2
+2) (integer) 6
+127.0.0.1:6379> lpos psostions d rank 1 count 4 maxlen 1
+(empty array)
+127.0.0.1:6379> lpos psostions d rank 1 count 4 maxlen 2
+(empty array)
+127.0.0.1:6379> lpos psostions d rank 1 count 4 maxlen 10
+1) (integer) 2
+2) (integer) 6
+127.0.0.1:6379>
+
+
+
+lrem - remove element from list count of element to be remove and negative means from right
+
+127.0.0.1:6379> flushdb
+OK
+127.0.0.1:6379> rpush mykey "1" "1" "2" "3" "1", "5"
+Invalid argument(s)
+127.0.0.1:6379> rpush mykey "1" "1" "2" "3" "1" "5"
+(integer) 6
+127.0.0.1:6379> lrange mykey 0 -1
+1) "1"
+2) "1"
+3) "2"
+4) "3"
+5) "1"
+6) "5"
+127.0.0.1:6379> lrem mykey 1 "1"
+(integer) 1
+127.0.0.1:6379> lrange mykey 0 -1
+1) "1"
+2) "2"
+3) "3"
+4) "1"
+5) "5"
+127.0.0.1:6379> lrem mykey 2 "1"
+(integer) 2
+127.0.0.1:6379> lrange mykey 0 -1
+1) "2"
+2) "3"
+3) "5"
+127.0.0.1:6379> lrem mykey -1 "1"
+(integer) 0
+127.0.0.1:6379> lrem mykey -1 "5"
+(integer) 1
+127.0.0.1:6379> lpush mykey "6"
+(integer) 3
+127.0.0.1:6379> rpush mykey "6"
+(integer) 4
+127.0.0.1:6379> lrange mykey 0 -1
+1) "6"
+2) "2"
+3) "3"
+4) "6"
+127.0.0.1:6379> lrem mykey -1 "6"
+(integer) 1
+127.0.0.1:6379> lrange mykey 0 -1
+1) "6"
+2) "2"
+3) "3"
+127.0.0.1:6379> lrem mykey 1 "6"
+(integer) 1
+127.0.0.1:6379> lrange mykey 0 -1
+1) "2"
+2) "3"
+127.0.0.1:6379>
+
+// move lements from one list to another
+rpush jobs:pending "job1" "job2" "job3"
+
+lrange jobs:pending 0 -1
+
+lmove jobs:pending jobs:completed left right
+
+lrange jobs:pending 0 -1
+
+lrange jobs:completed 0 -1
+
+lmove jobs:pending jobs:completed left left
+
+lrange jobs:pending 0 -1
+
+lrange jobs:completed 0 -1
+
+rpush orders:pending 1 2 3 4 5
+
+lmove orders:pending orders:completed right left
+
+lrange orders:pending 0 -1
+
+lrange orders:completed 0 -1

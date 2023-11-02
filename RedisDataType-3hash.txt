@@ -1,0 +1,134 @@
+hash are like tables 
+
+127.0.0.1:6379> hset user:101 fname "ankur" lname "bhargava"
+(integer) 2
+127.0.0.1:6379> get user:101
+(error) WRONGTYPE Operation against a key holding the wrong kind of value
+127.0.0.1:6379> hget user:101
+(error) ERR wrong number of arguments for 'hget' command
+127.0.0.1:6379> hget user:101 fname
+"ankur"
+127.0.0.1:6379> hget user:101 lname
+"bhargava"
+127.0.0.1:6379> hgetall user:101
+1) "fname"
+2) "ankur"
+3) "lname"
+4) "bhargava"
+127.0.0.1:6379> hmget user:101 fname lname
+1) "ankur"
+2) "bhargava"
+127.0.0.1:6379> hlen user:101
+(integer) 2
+127.0.0.1:6379> hset user:101 f1 v1 f2 v2
+(integer) 2
+127.0.0.1:6379> hgetall user:101
+1) "fname"
+2) "ankur"
+3) "lname"
+4) "bhargava"
+5) "f1"
+6) "v1"
+7) "f2"
+8) "v2"
+127.0.0.1:6379> hdel f1 f2
+(integer) 0
+127.0.0.1:6379> hgetall user:101
+1) "fname"
+2) "ankur"
+3) "lname"
+4) "bhargava"
+5) "f1"
+6) "v1"
+7) "f2"
+8) "v2"
+127.0.0.1:6379> hdel f1
+(error) ERR wrong number of arguments for 'hdel' command
+127.0.0.1:6379> hdel user:101 f1 f2
+(integer) 2
+127.0.0.1:6379> hgetall user:101
+1) "fname"
+2) "ankur"
+3) "lname"
+4) "bhargava"
+127.0.0.1:6379> hexist user:101 fname
+(error) ERR unknown command `hexist`, with args beginning with: `user:101`, `fname`,
+127.0.0.1:6379> hexists user:101 fname
+(integer) 1
+127.0.0.1:6379> hexists user:101 fname1
+(integer) 0
+127.0.0.1:6379> hexists user:101 fname1 fname lname
+(error) ERR wrong number of arguments for 'hexists' command
+127.0.0.1:6379> hexists user:101 fname lname fname1
+(error) ERR wrong number of arguments for 'hexists' command
+127.0.0.1:6379> hkeys user:101
+1) "fname"
+2) "lname"
+127.0.0.1:6379> hvalue user:101
+(error) ERR unknown command `hvalue`, with args beginning with: `user:101`,
+127.0.0.1:6379> hvalues user:101
+(error) ERR unknown command `hvalues`, with args beginning with: `user:101`,
+127.0.0.1:6379> hvals user:101
+1) "ankur"
+2) "bhargava"
+127.0.0.1:6379> hset user:101 salary 10
+(integer) 1
+127.0.0.1:6379> hgetall user:101
+1) "fname"
+2) "ankur"
+3) "lname"
+4) "bhargava"
+5) "salary"
+6) "10"
+127.0.0.1:6379> hincrby user:101 salary 10
+(integer) 20
+127.0.0.1:6379> hincrby user:101 salary 10
+(integer) 30
+127.0.0.1:6379> hincrby user:101 salary -10
+(integer) 20
+127.0.0.1:6379> hincrbyfloat user:101 salary 5.5
+"25.5"
+127.0.0.1:6379> hincrbyfloat user:101 salary -5.5
+"20"
+127.0.0.1:6379> hgetall user:101
+1) "fname"
+2) "ankur"
+3) "lname"
+4) "bhargava"
+5) "salary"
+6) "20"
+127.0.0.1:6379> hsetnx user:101 salary 100
+(integer) 0
+127.0.0.1:6379> hgetall user:101
+1) "fname"
+2) "ankur"
+3) "lname"
+4) "bhargava"
+5) "salary"
+6) "20"
+127.0.0.1:6379> hsetnx user:101 age 43
+(integer) 1
+127.0.0.1:6379> hgetall user:101
+1) "fname"
+2) "ankur"
+3) "lname"
+4) "bhargava"
+5) "salary"
+6) "20"
+7) "age"
+8) "43"
+// hrandfield -= get n random field 
+
+hkeys user:101
+
+hrandfield user:101
+
+hrandfield user:101 -1
+
+hrandfield user:101 -2
+
+hrandfield user:101 -2 withvalues
+
+hrandfield user:101 20 withvalues
+
+hkeys user:101
