@@ -1,0 +1,40 @@
+127.0.0.1:6379> pfadd 1 2 3 4 5 5 6
+(integer) 1
+127.0.0.1:6379> pfadd hll1 1 2 3 4 5 5 6
+(integer) 1
+127.0.0.1:6379> pfadd hll2 1 2 3 4 5 5 6 7 8 9 10
+(integer) 1
+127.0.0.1:6379> pfcount hll1 hll2
+(integer) 10
+127.0.0.1:6379> pfcount hll1
+(integer) 6
+127.0.0.1:6379> pfmerge hll hll1 hll2
+OK
+127.0.0.1:6379> pfcount hll
+(integer) 10
+127.0.0.1:6379> pfadd user:login 1 2 3 4 5
+(integer) 1
+127.0.0.1:6379> pfadd user:session 5 7 8 9 10
+(integer) 1
+127.0.0.1:6379> pfadd user:home 1 2 5 7 10
+(integer) 1
+127.0.0.1:6379> pfadd user:order 6 10 11 45 44
+(integer) 1
+127.0.0.1:6379> pfadd user:history 11 12 3 6
+(integer) 1
+127.0.0.1:6379> pfcount user:login
+(integer) 5
+127.0.0.1:6379> pfcount user:session
+(integer) 5
+127.0.0.1:6379> pfcount user:home
+(integer) 5
+127.0.0.1:6379> pgcount user:order
+(error) ERR unknown command `pgcount`, with args beginning with: `user:order`,
+127.0.0.1:6379> pfcount user:order
+(integer) 5
+127.0.0.1:6379> pfcount user:history
+(integer) 4
+127.0.0.1:6379> pfmerge user:all user:login user:session user:home user:order user:history
+OK
+127.0.0.1:6379> pfcount user:all
+(integer) 14
